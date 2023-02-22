@@ -47,18 +47,20 @@ void *consumer(void *arg){
 }
 int main()
 {
-  pthread_t producers[2];
-  pthread_t consumers[2];
-    int i;
-    for (i = 0; i < 2; i++) {
-        pthread_create(&producers[i], NULL, producer, NULL);
-        pthread_create(&consumers[i], NULL, consumer, NULL);
-    }
-    for (i = 0; i < 2; i++) {
-        pthread_join(producers[i], NULL);
-        pthread_join(consumers[i], NULL);
-    }
-    printf("SUM = %d\n", sum);
-    return 0;
+  pthread_t th1,th2,th3,th4;
+  pthread_mutex_init(&mutex_buffer,NULL);
+  pthread_mutex_init(&mutex_sum, NULL);
 
+  pthread_create(&th1, NULL, pro, NULL);
+  pthread_create(&th2, NULL, pro, NULL);
+  pthread_create(&th3, NULL, con, NULL);
+  pthread_create(&th4, NULL, con, NULL);
+
+  pthread_join(th1, NULL);
+  pthread_join(th2, NULL);
+  pthread_join(th3, NULL);
+  pthread_join(th4, NULL);
+
+  printf("SUM is: %d\n", sum);
+  return 0;
 }
