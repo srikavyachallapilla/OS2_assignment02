@@ -16,7 +16,7 @@ pthread_cond_t empty = PTHREAD_COND_INITIALIZER;
 
 void *producer(void *arg) {
     int i, value;
-    for (i = 1; i <= 40; i++) {
+    for (i = 1; i <= 20; i++) {
         value = i;
         pthread_mutex_lock(&mutex);
         while (count == BUFFER_SIZE) {
@@ -33,7 +33,7 @@ void *producer(void *arg) {
 
 void *consumer(void *arg) {
     int value;
-    for(int i = 0; i < 40;i++){
+    for(int i = 0; i < 20;i++){
         pthread_mutex_lock(&mutex);
         while (count == 0) {
             pthread_cond_wait(&full, &mutex);
