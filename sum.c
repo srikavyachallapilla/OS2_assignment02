@@ -19,15 +19,15 @@ void *producer(void *arg){
     buffer[in] = i;
     in = (in+1)%BUFFER_SIZE;
     count++;
-    pthread_cond_signal(&buff_not_empty_cond);
+    pthread_cond_signal(&buffer_not_empty_cond);
     pthread_mutex_unlock(&mutex_buffer);
   }
-  return null;
+  return NULL;
 }
 void *consumer(void *arg){
   int item;
   for(int i = 0; i < NUM_ITEMS; i++){
-    pthread_mutex_lock(&buffer_mutex);
+    pthread_mutex_lock(&mutex_buffer);
     while(count == 0){
       pthread_cond_wait(&buffer_not_empty_cond, &mutex_buffer);
     }
