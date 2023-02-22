@@ -47,19 +47,19 @@ void *consumer(void *arg){
 }
 int main()
 {
-  pthread_t th1,th2,th3,th4;
+  pthread_t thread1,thread2,thread3,thread4;
   pthread_mutex_init(&mutex_buffer,NULL);
   pthread_mutex_init(&mutex_sum, NULL);
 
-  pthread_create(&th1, NULL, pro, NULL);
-  pthread_create(&th2, NULL, pro, NULL);
-  pthread_create(&th3, NULL, con, NULL);
-  pthread_create(&th4, NULL, con, NULL);
+  pthread_create(&thread1, NULL, producer, NULL);
+  pthread_create(&thread2, NULL, producer, NULL);
+  pthread_create(&thread3, NULL, consumer, NULL);
+  pthread_create(&thread4, NULL, consumer, NULL);
 
-  pthread_join(th1, NULL);
-  pthread_join(th2, NULL);
-  pthread_join(th3, NULL);
-  pthread_join(th4, NULL);
+  pthread_join(thread1, NULL);
+  pthread_join(thread2, NULL);
+  pthread_join(thread3, NULL);
+  pthread_join(thread4, NULL);
 
   printf("SUM is: %d\n", sum);
   return 0;
