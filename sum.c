@@ -1,8 +1,11 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<pthread.h>
+#include<unistd.h>
+
 #define BUFFER_SIZE 20
 #define NUM_ITEMS 30
+
 int buffer[BUFFER_SIZE];
 int sum = 0;
 int in = 0, out = 0, count =0;
