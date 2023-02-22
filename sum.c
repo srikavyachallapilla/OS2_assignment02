@@ -1,64 +1,76 @@
 #include<stdio.h>
-#include<stdlib.h>
 #include<pthread.h>
+#include<semaphore.h>
 #include<unistd.h>
 
-#define BUFFER_SIZE 20
-#define NUM_ITEMS 30
 
-int buffer[BUFFER_SIZE];
-int sum = 0;
-int in = 0, out = 0, count =0;
-pthread_mutex_t mutex_buffer;
-pthread_mutex_t mutex_sum;
-pthread_cond_t buffer_not_empty_cond;
-pthread_cond_t buffer_not_full_cond;
-void *producer(void *arg){
-  for(int i = 1; i <= NUM_ITEMS; i++){
-    pthread_mutex_lock(&mutex_buffer);
-    while(count == BUFFER_SIZE){
-      pthread_cond_wait(&buffer_not_full_cond, &mutex_buffer);
-    }
-    buffer[in] = i;
-    in = (in+1)%BUFFER_SIZE;
-    count++;
-    pthread_cond_signal(&buffer_not_empty_cond);
-    pthread_mutex_unlock(&mutex_buffer);
-  }
-  return NULL;
+sem_t not_empty,empty;
+
+pthread_mutex_t mutex;
+
+int store[20];
+
+int x=0,y=0;
+
+int sum=0;
+
+void *pro(void *arg)
+{
+int i=0;
+while(i<30)
+{
+    sem_wait(&empty);
+    pthread_mutex_lock(&mutex);
+
+    store[x] = i+1;
+    x = (x+1)%20;
+
+    pthread_mutex_unlock(&mutex);
+    sem_post(&not_empty);
+
+    i++;
 }
-void *consumer(void *arg){
-  int item;
-  for(int i = 0; i < NUM_ITEMS; i++){
-    pthread_mutex_lock(&mutex_buffer);
-    while(count == 0){
-      pthread_cond_wait(&buffer_not_empty_cond, &mutex_buffer);
-    }
-    item = buffer[out];
-    out = (out+1)%BUFFER_SIZE;
-    count--;
-    pthread_cond_signal(&buffer_not_full_cond);
-    pthread_mutex_unlock(&mutex_buffer);
-    pthread_mutex_lock(&mutex_sum);
-    sum = sum + item;
-    pthread_mutex_unlock(&mutex_sum);
-  }
-  return NULL;
+return 0;
 }
+
+void *con(void *arg)
+{
+    int j,temp;
+    while(j<30)
+    {
+    sem_wait(&not_empty);
+    pthread_mutex_lock(&mutex);
+
+    temp = store[y];
+    y = (y + 1)%20;
+
+    pthread_mutex_unlock(&mutex);
+    sem_post(&empty);
+
+    sum=sum+temp;
+    j++;
+    }
+    return 0;
+}
+
 int main()
 {
-  pthread_t producers[2];
-  pthread_t consumers[2];
-    int i;
-    for (i = 0; i < 2; i++) {
-        pthread_create(&producers[i], NULL, producer, NULL);
-        pthread_create(&consumers[i], NULL, consumer, NULL);
-    }
-    for (i = 0; i < 2; i++) {
-        pthread_join(producers[i], NULL);
-        pthread_join(consumers[i], NULL);
-    }
-    printf("SUM = %d\n", sum);
-    return 0;
+  sem_init(&not_empty, 0, 0);
+  sem_init(&empty, 0, 20);
+  pthread_t th1,th2,th3,th4;
+  pthread_mutex_init(&mutex,NULL);
+
+  pthread_create(&th1, NULL, pro, NULL);
+  pthread_create(&th2, NULL, pro, NULL);
+  pthread_create(&th3, NULL, con, NULL);
+  pthread_create(&th4, NULL, con, NULL);
+
+  pthread_join(th1, NULL);
+  pthread_join(th2, NULL);
+  pthread_join(th3, NULL);
+  pthread_join(th4, NULL);
+
+  printf("SUM is: %d\n", sum);
+  return 0;
 
 }
